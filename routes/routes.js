@@ -5,9 +5,8 @@ const router = Router();
 
 router.use('/sanoPostman', async (req, res) => {
   const {
-    body: { url },
+    body: { url,method },
     headers,
-    method,
     body,
     query
   } = req;
@@ -33,7 +32,7 @@ router.use('/sanoPostman', async (req, res) => {
   const ree = await sanoPostman(method, url, request);
   const check = validateResponse(ree);
   if (check) {
-    if (check.status === 609) {
+    if (check.status === 406) {
       return res.json(check);
     }
   }

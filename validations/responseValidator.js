@@ -1,45 +1,48 @@
-const StatusCodes = require('../library/statusCodes');
-const message_types = [
-  'text',
-  'image',
-  'video',
-  'audio',
-  'file',
-  'cards',
-  'list'
-];
+const {
+  sendSutiableHttpResponse,
+} = require('../library/sendSutiableHttpResponse');
+
+const {validateMedia} = require('./validateMedia');
+const {validateKeyboard} = require('./validateKeyboard');
+const {validateImage} = require('./validateImage');
+const {message_types} = require('./types');
+
 function validateResponse(res) {
   try {
-    if (res.data) {
-      if (!res.data.version) {
-        return StatusCodes.validationError(
-          `Invalid Payload message Version is required`,
-          res
-        );
+    if (res.data) {      
+      if(!res.data.content){
+        return sendSutiableHttpResponse(406,res,'Content is required')
       }
-      if (res.data.version !== 'v2') {
-        return StatusCodes.validationError(`Invalid Version`, res);
-      }
-      if (res.data.content) {
-        if (res.data.content.messages) {
-          if (!Array.isArray(res.data.content.messages)) {
-            if (!res.data.content.messages[0].type) {
-              return StatusCodes.validationError(`Type is required`, res);
-            }
-            const check = message_types.includes(
-              res.data.content.messages[0].type
-            );
-            if (!check) {
-              return StatusCodes.validationError(
-                `Unsupported message Type`,
-                res
-              );
-            }
-            return StatusCodes.validationError(`Message should be array`, res);
-          }
-          return StatusCodes.validationError(`Message is required`, res);
+
+      const check = message_types.includes(res.data.type);
+      if(!check){
+        return sendSutiableHttpResponse(406,res,`Type should be one of the following ${message_types}`)
+      } 
+
+      if (res.data.content.type == "image") {
+        const validationError = validateImage(res.data.content.data, res);
+        if (validationError) {
+          return sendSutiableHttpResponse(406, res, validationErr);
         }
-        return StatusCodes.validationError(`Content is required`, res);
+      }
+
+      if (res.data.content.type == "audio" || res.data.content.type == "video") {
+        const validationError = validateMedia(res.data.content.data, res);
+        if (!validationError) {
+          return sendSutiableHttpResponse(406, res, validationError);
+        }
+      }
+
+      if(res.data.keyboard){
+        if(!Array.isArray(res.data.keyboard)){
+          return sendSutiableHttpResponse(406,res,'Keyboard should be of Type Array')
+        }
+        
+        const validation = validateKeyboard(res.data.keyboard,res)
+
+        if(!validation.valid){
+          return sendSutiableHttpResponse(406,res,validation.errors)
+        }
       }
     }
   } catch (err) {
@@ -48,5 +51,5 @@ function validateResponse(res) {
 }
 
 module.exports = {
-  validateResponse
+  validateResponse,
 };
