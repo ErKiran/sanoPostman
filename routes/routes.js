@@ -4,11 +4,9 @@ const { validateResponse } = require('../validations/responseValidator');
 const router = Router();
 
 router.use('/sanoPostman', async (req, res) => {
-<<<<<<< HEAD
   const {
-    body: { url },
+    body: { url,method },
     headers,
-    method,
     body,
     params,
     query,
@@ -18,16 +16,6 @@ router.use('/sanoPostman', async (req, res) => {
   if (!url) {
     throw new Error(`Url is required for making request`);
   }
-=======
-	const {
-		body: { url },
-		headers,
-		method,
-		body,
-		query,
-	} = req;
-	console.log(req.body);
->>>>>>> 091b3b66bd97d002f3816b40854cee8fd6675b02
 
 	if (!url) {
 		console.log('Error: URL not found.');
@@ -50,7 +38,6 @@ router.use('/sanoPostman', async (req, res) => {
 		request.headers = headers;
 	}
 
-<<<<<<< HEAD
   if(params) {
     request.params = params
   }
@@ -80,21 +67,6 @@ router.use('/sanoPostman', async (req, res) => {
 
   ree.request = requestObjectNeeded
   return res.status(ree.status).json(ree);
-=======
-	if (query) {
-		request.query = query;
-	}
-
-	request.body = body;
-	const ree = await sanoPostman(method, url, request);
-	const check = validateResponse(ree);
-	if (check) {
-		if (check.status === 609) {
-			return res.json(check);
-		}
-	}
-	return res.status(ree.status).json(ree);
->>>>>>> 091b3b66bd97d002f3816b40854cee8fd6675b02
 });
 
 module.exports = router;

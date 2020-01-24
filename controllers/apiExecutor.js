@@ -1,6 +1,6 @@
 const axios = require('axios');
 const qs = require('querystring');
-const { sendSuitableHttpResponse } = require('../library/sendSuitableHttpResponse');
+const { sendSuitableHttpResponse } = require('../library/sendSutiableHttpResponse');
 
 async function sanoPostman(method, url, request) {
 	try {
